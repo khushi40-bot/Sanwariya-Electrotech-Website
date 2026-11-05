@@ -1,6 +1,6 @@
 # Sanwariya Electrotech Pvt. Ltd. — Website
 
-A responsive React + Vite company website with a navy/cyan visual system, animated sections, service cards, technology showcase, concept portfolio and a Supabase-backed inquiry form. The Vite React plugin is explicitly configured to ensure JSX is transformed correctly; a visible error screen is included for runtime rendering errors.
+A responsive React + Vite company website with a navy/cyan visual system, animated sections, service cards, technology showcase, concept portfolio and Google Sheets & Supabase inquiry form integration. The Vite React plugin is explicitly configured to ensure JSX is transformed correctly; a visible error screen is included for runtime rendering errors.
 
 ## Requirements
 - Node.js 18.18+ (Node 20 LTS recommended)
@@ -14,21 +14,38 @@ npm run dev
 ```
 Open the local URL printed by Vite (usually http://localhost:5173).
 
-## Configure the contact form database (Supabase)
-The contact form intentionally does not show a false success when the database is not configured.
+## Configure Google Sheets for the Contact Form (Recommended)
+You can connect the inquiry form directly to a Google Sheet with zero backend server costs:
+
+1. Create a new Google Sheet at https://sheets.new (e.g. named "Sanwariya Electrotech Inquiries").
+2. Go to **Extensions → Apps Script**.
+3. Open `google-apps-script.js` from this project repository, copy its entire contents, and replace all code in the Apps Script editor.
+4. Click **Save** (floppy disk icon).
+5. Click **Deploy → New deployment**.
+6. Click the gear icon next to "Select type" and choose **Web app**.
+7. Set:
+   - **Description**: `Inquiries Webhook`
+   - **Execute as**: `Me`
+   - **Who has access**: `Anyone` *(Crucial: must be set to Anyone)*
+8. Click **Deploy**, grant permissions if prompted, and copy the **Web app URL** (`https://script.google.com/macros/s/.../exec`).
+9. In your `.env` file, set:
+   ```env
+   VITE_GOOGLE_SHEETS_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+   ```
+10. Restart Vite (`npm run dev`). Form submissions will automatically create headers (if sheet is empty) and append inquiry rows to your Google Sheet!
+
+## Alternative / Additional: Configure Supabase
+The form also supports saving to Supabase (or saving to both simultaneously):
 
 1. Create a project at https://supabase.com/.
 2. In the project dashboard, open **SQL Editor** and run the contents of `supabase-schema.sql`.
 3. In **Project Settings → API**, copy the Project URL and anon/public key.
-4. Copy `.env.example` to `.env` in the project root.
-5. Set the values:
+4. In your `.env` file, set:
    ```env
    VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
    VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
    ```
-6. Restart the dev server. New form submissions will be inserted into `public.inquiries`.
-
-The anon key is designed for browser use; keep Row Level Security enabled. The provided SQL allows inserts only and does not expose inquiry records for public reading. For production, add server-side rate limiting / CAPTCHA and review spam protection before launch.
+5. Restart the dev server.
 
 ## Build for production
 ```bash
